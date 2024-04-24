@@ -4,17 +4,16 @@
 
 using namespace std;
 
-// Data class to store date information
 class Date {
 public:
     int day;
     int month;
     int year;
 
+    Date() : Date(1, 1, 1900) {}  // Делегирование конструктора
     Date(int d, int m, int y) : day(d), month(m), year(y) {}
 };
 
-// Data class for storing address information
 class Address {
 public:
     string country;
@@ -24,11 +23,11 @@ public:
     int houseNumber;
     char buildingSection;
 
+    Address() : Address("Not specified", "Not specified", "Not specified", "Not specified", 0, 'A') {}
     Address(string cn, string rg, string ct, string st, int hn, char bs)
         : country(cn), region(rg), city(ct), street(st), houseNumber(hn), buildingSection(bs) {}
 };
 
-// Abstract base class for personal details
 class PersonalDetails {
 public:
     string firstName;
@@ -36,26 +35,22 @@ public:
     Date* birthDate;
     Address* homeAddress;
 
-    PersonalDetails(const string& fn, const string& ln, Date* bd, Address* ha)
-        : firstName(fn), lastName(ln), birthDate(bd), homeAddress(ha) {}
+    PersonalDetails() : firstName(""), lastName(""), birthDate(new Date()), homeAddress(new Address()) {}
 
-    virtual void displayDetails() const = 0;
-};
+    void setDetails(const string& fn, const string& ln, Date* bd, Address* ha) {
+        firstName = fn;
+        lastName = ln;
+        birthDate = bd;
+        homeAddress = ha;
+    }
 
-// Concrete implementation for Student's personal details
-class StudentPersonalDetails : public PersonalDetails {
-public:
-    StudentPersonalDetails(const string& fn, const string& ln, Date* bd, Address* ha)
-        : PersonalDetails(fn, ln, bd, ha) {}
-
-    void displayDetails() const override {
+    virtual void displayDetails() const {
         cout << "Student Name: " << firstName << " " << lastName << endl;
         cout << "Birth Date: " << birthDate->day << "/" << birthDate->month << "/" << birthDate->year << endl;
-        cout << "Address: " << homeAddress->street << ", " << homeAddress->city << endl;
+        cout << "Address: " << homeAddress->street << ", " << homeAddress->city << ", " << homeAddress->country << endl;
     }
 };
 
-// Class to manage educational details
 class EducationDetails {
 public:
     Date startDate;
@@ -63,8 +58,14 @@ public:
     string groupName;
     string specialization;
 
-    EducationDetails(const Date& sd, int cc, const string& gn, const string& sp)
-        : startDate(sd), currentCourse(cc), groupName(gn), specialization(sp) {}
+    EducationDetails() : startDate(Date()), currentCourse(1), groupName("None"), specialization("None") {}
+
+    void setEducationDetails(const Date& sd, int cc, const string& gn, const string& sp) {
+        startDate = sd;
+        currentCourse = cc;
+        groupName = gn;
+        specialization = sp;
+    }
 
     void displayEducation() const {
         cout << "Start Date: " << startDate.day << "/" << startDate.month << "/" << startDate.year << endl;
@@ -74,7 +75,6 @@ public:
     }
 };
 
-// Class to store and manage grades
 class Grades {
 public:
     vector<int> homeworkGrades;
@@ -89,17 +89,17 @@ public:
     }
 };
 
-// Class representing a student combining personal and educational details
 class Student {
 private:
-    StudentPersonalDetails personalDetails;
+    PersonalDetails personalDetails;
     EducationDetails educationDetails;
     Grades grades;
 
 public:
-    Student(const string& fn, const string& ln, Date* bd, Address* ha, const Date& sd, int cc, const string& gn, const string& sp)
-        : personalDetails(fn, ln, bd, ha),
-          educationDetails(sd, cc, gn, sp) {}
+    Student(const string& fn, const string& ln, Date* bd, Address* ha, const Date& sd, int cc, const string& gn, const string& sp) {
+        personalDetails.setDetails(fn, ln, bd, ha);
+        educationDetails.setEducationDetails(sd, cc, gn, sp);
+    }
 
     void displayStudentInfo() const {
         personalDetails.displayDetails();
@@ -112,17 +112,13 @@ public:
 };
 
 int main() {
-    // Create date and address information
     Date* birthDate = new Date(15, 10, 1998);
     Address* address = new Address("USA", "California", "Los Angeles", "Sunset Blvd", 101, 'B');
     
-    // Instantiate the Student class using constructor with parameters
     Student student("John", "Doe", birthDate, address, Date(1, 9, 2018), 2, "CS202", "Computer Science");
     
-    // Display the student information
     student.displayStudentInfo();
     
-    // Add a grade to the student's records
     student.addGrade(88, true); // Add an exam grade
 
     delete birthDate;
