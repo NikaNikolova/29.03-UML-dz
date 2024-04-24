@@ -36,7 +36,7 @@ public:
     Date* birthDate;
     Address* homeAddress;
 
-    PersonalDetails(string fn, string ln, Date* bd, Address* ha)
+    PersonalDetails(const string& fn, const string& ln, Date* bd, Address* ha)
         : firstName(fn), lastName(ln), birthDate(bd), homeAddress(ha) {}
 
     virtual void displayDetails() const = 0;
@@ -45,7 +45,7 @@ public:
 // Concrete implementation for Student's personal details
 class StudentPersonalDetails : public PersonalDetails {
 public:
-    StudentPersonalDetails(string fn, string ln, Date* bd, Address* ha)
+    StudentPersonalDetails(const string& fn, const string& ln, Date* bd, Address* ha)
         : PersonalDetails(fn, ln, bd, ha) {}
 
     void displayDetails() const override {
@@ -63,11 +63,11 @@ public:
     string groupName;
     string specialization;
 
-    EducationDetails(Date sd, int cc, string gn, string sp)
+    EducationDetails(const Date& sd, int cc, const string& gn, const string& sp)
         : startDate(sd), currentCourse(cc), groupName(gn), specialization(sp) {}
 
     void displayEducation() const {
-        cout << "Start Date: " << startDate.year << endl;
+        cout << "Start Date: " << startDate.day << "/" << startDate.month << "/" << startDate.year << endl;
         cout << "Course: " << currentCourse << endl;
         cout << "Group: " << groupName << endl;
         cout << "Specialization: " << specialization << endl;
@@ -92,35 +92,40 @@ public:
 // Class representing a student combining personal and educational details
 class Student {
 private:
-    StudentPersonalDetails* personalDetails;
-    EducationDetails* educationDetails;
-    Grades* grades;
+    StudentPersonalDetails personalDetails;
+    EducationDetails educationDetails;
+    Grades grades;
 
 public:
-    Student(StudentPersonalDetails* spd, EducationDetails* ed, Grades* g)
-        : personalDetails(spd), educationDetails(ed), grades(g) {}
+    Student(const string& fn, const string& ln, Date* bd, Address* ha, const Date& sd, int cc, const string& gn, const string& sp)
+        : personalDetails(fn, ln, bd, ha),
+          educationDetails(sd, cc, gn, sp) {}
 
-    void displayStudentInfo() {
-        personalDetails->displayDetails();
-        educationDetails->displayEducation();
+    void displayStudentInfo() const {
+        personalDetails.displayDetails();
+        educationDetails.displayEducation();
     }
 
     void addGrade(int grade, bool isExam) {
-        grades->addGrade(grade, isExam);
+        grades.addGrade(grade, isExam);
     }
 };
 
 int main() {
+    // Create date and address information
     Date* birthDate = new Date(15, 10, 1998);
     Address* address = new Address("USA", "California", "Los Angeles", "Sunset Blvd", 101, 'B');
-    StudentPersonalDetails* personalDetails = new StudentPersonalDetails("John", "Doe", birthDate, address);
-    EducationDetails* eduDetails = new EducationDetails(Date(2018, 9, 1), 2, "CS202", "Computer Science");
-    Grades* grades = new Grades();
-    Student* student = new Student(personalDetails, eduDetails, grades);
+    
+    // Instantiate the Student class using constructor with parameters
+    Student student("John", "Doe", birthDate, address, Date(1, 9, 2018), 2, "CS202", "Computer Science");
+    
+    // Display the student information
+    student.displayStudentInfo();
+    
+    // Add a grade to the student's records
+    student.addGrade(88, true); // Add an exam grade
 
-    student->displayStudentInfo();
-    student->addGrade(88, true); // Add an exam grade
-
-    delete student; // Assuming proper deletions in destructors
+    delete birthDate;
+    delete address;
     return 0;
 }
